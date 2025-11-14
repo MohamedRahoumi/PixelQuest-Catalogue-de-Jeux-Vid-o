@@ -5,9 +5,18 @@ async function fetchGames() {
         const data = await res.json();
         allGames = data.results;
         displayGames(allGames);
+        displaySlide(allGames);
       } catch (error) {
         console.error('Erreur :', error);
       } 
+    }
+function displaySlide(games) {
+      const randomIndex = Math.floor(Math.random() * games.length);
+      const featuredGame = games[randomIndex];
+      document.getElementById('slide-image').src = featuredGame.background_image;
+      document.getElementById('slide-nom').textContent = featuredGame.name;
+      document.getElementById('slide-desc').textContent = featuredGame.description.slice(0, 120);
+      btn.addEventListener('click', () => openModal(featuredGame));
     }
 function displayGames(games) {
   const container = document.getElementById('games-container');
