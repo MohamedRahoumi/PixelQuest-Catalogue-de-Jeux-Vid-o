@@ -8,8 +8,9 @@ async function fetchGames() {
         const res = await fetch('https://debuggers-games-api.duckdns.org/api/games');
         const data = await res.json();
         allGames = data.results;
-        displayGames(allGames);
         displaySlide(allGames);
+        displayGenres(allGames);
+        displayGames(allGames);
       } catch (error) {
         console.error('Erreur :', error);
       } 
@@ -21,6 +22,18 @@ function displaySlide(games) {
       document.getElementById('slide-nom').textContent = featuredGame.name;
       document.getElementById('slide-desc').textContent = featuredGame.description.slice(0, 120);
       btn.addEventListener('click', () => openModal(featuredGame));
+    }
+function displayGenres(games) {
+      const genreSelect = document.getElementById('genre-filter');
+      const genres = new Set();
+      games.forEach(g => g.genres.forEach(gen => genres.add(gen.name)));
+      genres.forEach(genre => {
+        const option = document.createElement('option');
+        option.value = genre;
+        option.textContent = genre;
+        genreSelect.appendChild(option);
+      });
+      genreSelect.addEventListener('change', filterGames);
     }
 function displayGames(games) {
   const container = document.getElementById('games-container');
@@ -48,6 +61,18 @@ function displayGames(games) {
     container.appendChild(card);
   });
 }
+ function filterGames() {
+      const genreValue = document.getElementById('genre-filter').value.toLowerCase();
+      const searchValue = document.getElementById('search-input').value.toLowerCase();
+
+      const filtered = allGames.filter(game => {
+        const matchesGenre = genreValue === "" || game.genres.some(g => g.name.toLowerCase() === genreValue);
+        const matchesSearch = game.name.toLowerCase().includes(searchValue);
+        return matchesGenre && matchesSearch;
+      });
+
+      displayGames(filtered);
+    }
 function openModal(game) {
       currentGame = game;
       modal.classList.remove('hidden');
@@ -60,7 +85,7 @@ function openModal(game) {
 function closeModal() {
       modal.classList.add('hidden');
     }
-  
+document.getElementById('search-input').addEventListener('input', filterGames);
 closeModalBtn.addEventListener('click', closeModal);
 window.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
